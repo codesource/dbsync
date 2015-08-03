@@ -1,0 +1,139 @@
+#!/usr/bin/php
+<?php
+
+// Make sure that script is called from CLI
+if (defined('STDIN')) {
+  require_once('init.php');
+  
+  /**
+   * Print help
+   * 
+   * @param integer $code
+   */
+  function help($code = 0) {
+    passthru('clear');
+    $manual = new \DBSync\Manual(exec('tput cols') - 4);
+    foreach($manual->render() as $line){
+      print($line . "\n");
+    }
+    print("\n");
+    exit($code);
+  }
+
+  $longopts = array(
+      'host1::',
+      'database1::',
+      'username1::',
+      'password1::',
+      'port1::',
+      'host2::',
+      'database2::',
+      'username2::',
+      'password2::',
+      'port2::',
+      'verbose',
+      'quiet',
+      'dryrun',
+      'print',
+      'help',
+      'file::'
+  );
+  $options = getopt('vqhp', $longopts);
+
+  // Print help
+  if (isset($options['h']) || isset($options['help'])) {
+    help(0);
+  }
+
+  // Import options from file
+  if (isset($options['file'])) {
+    if (strlen($options['file']) > 0 && is_file($options['file'])) {
+      if (($lines = file($options['file'])) !== FALSE) {
+        $matches = array();
+        foreach ($lines as $line) {
+          if (preg_match('/^(' . str_replace(':', '', implode('|', $longopts)) . ')(=?(.*))?$/', $line, $matches)) {
+            switch ($matches[1]) {
+              case 'verbose':
+                if ($matches[3]) {
+                  $options['verbose'] = 1;
+                } else {
+                  $options['quiet'] = 1;
+                }
+                break;
+              case 'dryrun':
+                if ($matches[3]) {
+                  $options['dryrun'] = 1;
+                } elseif (isset($options['dryrun'])) {
+                  unset($options['dryrun']);
+                }
+                break;
+              case 'print':
+                if ($matches[3]) {
+                  $options['print'] = 1;
+                } else {
+                  if (isset($options['print'])) {
+                    unset($options['print']);
+                  }
+                  if (isset($options['p'])) {
+                    unset($options['p']);
+                  }
+                }
+                break;
+              default:
+                $options[$matches[1]] = $matches[3];
+                break;
+            }
+          }
+        }
+      } else {
+        print("Unable to read configuration file!\n");
+        help(2);
+      }
+    } else {
+      print("Configuration file not found!\n");
+      help(1);
+    }
+  }
+
+  // Trim options
+  $options = array_map('trim', $options);
+
+  // Check required parameter
+  $requiredParameters = array('host1', 'database1', 'username1', 'host2', 'database2', 'username2');
+  $allParameterChecked = TRUE;
+  foreach ($requiredParameters as $parameter) {
+    if (!isset($options[$parameter]) || strlen($options[$parameter]) === 0) {
+      $allParameterChecked = FALSE;
+      print("Parameter '" . $parameter . "' is required!\n");
+    }
+  }
+  if (!$allParameterChecked) {
+    help(4);
+  }
+
+  // Run synchronizer
+  ini_set('error_reporting', E_ERROR);
+  ini_set('display_errors', 0); 
+
+  $syncOptions = array(
+      'verbose' => isset($options['v']) || isset($options['verbose']) && !(isset($options['q']) || isset($options['quiet'])),
+      'dryrun' => isset($options['dryrun']),
+      'print' => isset($options['p']) || isset($options['print'])
+  );
+
+  try {
+    $source = new DBSync\Driver\MysqlDriver($options['host1'], $options['database1'], $options['username1'], $options['password1']);
+    $destination = new DBSync\Driver\MysqlDriver($options['host2'], $options['database2'], $options['username2'], $options['password2']);
+
+    $synchronizer = new DBSync\Synchronizer($source, $destination);
+    $synchronizer->sync($syncOptions);
+  } catch (\Exception $e) {
+    print($e->getMessage() . "\n");
+    exit(8);
+  }
+
+  exit(0);
+} else {
+  die("Access denied!\n");
+}
+?>

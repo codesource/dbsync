@@ -65,11 +65,9 @@ class Manual {
     $lines = array(
         $this->write('DBSync')->center('General Commands Manual')->right('DBSync')->clear(),
         '',
-        
         $this->title('Name')->clear(),
         $this->indent('dbsync - synchronize database\'s structure between two database')->clear(),
         '',
-        
         $this->title('Synopsis')->clear(),
         $this->indent('dbsync [-h|--help]')->clear(),
         $this->indent('dbsync')->indent('--host1=<host> --database1=<database> --username1=<username> [--password1=<password>] [--port1=<port>]', 1, 15)->clear(),
@@ -77,11 +75,9 @@ class Manual {
         $this->indent('[-v|--verbose] [-q|--quiet] [-p|--print] [--dryrun]', 15)->clear(),
         $this->indent('dbsync --file=<file>')->clear(),
         '',
-        
         $this->title('Description')->clear(),
         $this->indent('This script allows you to synchronise database structure between two database. Tables, columns, indexes and constraints are compared and SQL queries are generated to update destination.')->clear(),
         '',
-        
         $this->title('General options')->clear(),
         $this->indent('--dryrun')->clear(),
         $this->indent('dry run queries (no modification will be commited to destination)', 16)->clear(),
@@ -134,6 +130,31 @@ class Manual {
         $this->indent('Github repository for last version: <https://github.com/codesource/dbsync>')->clear(),
         '',
         $this->center('August 2015')->clear(),
+    );
+    $return = array();
+    foreach ($lines as $line) {
+      if (is_array($line)) {
+        $return = array_merge($return, $line);
+      } else {
+        $return[] = $line;
+      }
+    }
+    return $return;
+  }
+
+  /**
+   * Short version of manual
+   * 
+   * @return array
+   */
+  public function usage() {
+    $lines = array(
+        $this->write('Usage:')->clear(),
+        $this->indent('dbsync [-h|--help]')->clear(),
+        $this->indent('dbsync')->indent('--host1=<host> --database1=<database> --username1=<username> [--password1=<password>] [--port1=<port>]', 1, 15)->clear(),
+        $this->indent('--host2=<host> --database2=<database> --username2=<username> [--password2=<password>] [--port2=<port>]', 15)->clear(),
+        $this->indent('[-v|--verbose] [-q|--quiet] [-p|--print] [--dryrun]', 15)->clear(),
+        $this->indent('dbsync --file=<file>')->clear(),
     );
     $return = array();
     foreach ($lines as $line) {

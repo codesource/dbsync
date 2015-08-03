@@ -11,10 +11,16 @@ if (defined('STDIN')) {
    * @param integer $code
    */
   function help($code = 0) {
-    passthru('clear');
     $manual = new \DBSync\Manual(exec('tput cols') - 4);
-    foreach($manual->render() as $line){
-      print($line . "\n");
+    if($code === 0){
+      passthru('clear');
+      foreach($manual->render() as $line){
+        print($line . "\n");
+      }
+    }else{
+      foreach($manual->usage() as $line){
+        print($line . "\n");
+      }
     }
     print("\n");
     exit($code);

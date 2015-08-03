@@ -79,7 +79,7 @@ class Manual {
         '',
         
         $this->title('Description')->clear(),
-        $this->indent('This script allows you to synchronise database structure between two database. Tables, columns, indexes and constraints are compared and SQL are generated to update destination.')->clear(),
+        $this->indent('This script allows you to synchronise database structure between two database. Tables, columns, indexes and constraints are compared and SQL queries are generated to update destination.')->clear(),
         '',
         
         $this->title('General options')->clear(),

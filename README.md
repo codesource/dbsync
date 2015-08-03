@@ -2,7 +2,7 @@
 Database synchronisation tool
 
 ## Description
-This script allows you to synchronise database structure between two database. Tables, columns, indexes and constraints are compared and SQL are generated to update destination.
+This script allows you to synchronise database structure between two database. Tables, columns, indexes and constraints are compared and SQL queries are generated to update destination.
 
 ## Options
 ### General options
